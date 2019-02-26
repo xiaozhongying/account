@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+	"-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+	"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="account.dao.UserDao">
+
+<insert id="insert" parameterType="account.model.User">
+	insert into USER
+	(ID, USERNAME, MEMO,CREATETIME, QKJL, DQQKJE,YHJE)
+	values
+	(#{id}, #{username}, #{memo}, #{createtime}, #{qkjl}, #{dqqkje}, #{yhje})
+</insert>
+
+<delete id="delete">
+	delete from USER where ID=#{id}
+</delete>
+
+<update id="update" parameterType="account.model.User">
+	update USER set
+		USERNAME=#{username},
+		MEMO=#{memo},
+		QKJL=#{qkjl}, 
+		DQQKJE=#{dqqkje}, 
+		YHJE=#{yhje}
+	where ID=#{id}
+</update>
+
+<resultMap id="result" type="account.model.User">
+	<id property="id" column="ID" />
+	<result property="username" column="USERNAME" />
+	<result property="memo" column="MEMO" />
+	<result property="qkjl" column="QKJL" />
+	<result property="yhje" column="YHJE" />
+	<result property="dqqkje" column="DQQKJE" />
+	<result property="createtime" column="CREATETIME" />
+</resultMap>
+
+<sql id="columns">ID, USERNAME, MEMO, CREATETIME, QKJL, DQQKJE,YHJE</sql>
+
+<sql id="dynamicWhere">
+	<where>
+		<if test="@Ognl@isNotEmpty(id)"> and ID=#{id} </if>
+		<if test="@Ognl@isNotEmpty(username)"> and USERNAME like #{username, typeHandler=LikeTypeHandler} </if>
+		<if test="@Ognl@isNotEmpty(memo)"> and MEMO like #{memo, typeHandler=LikeTypeHandler} </if>
+	</where>
+</sql>
+
+<select id="select" resultMap="result">
+	select <include refid="columns" /> from USER where ID=#{id}
+</select>
+
+<select id="query" resultMap="result">
+	select <include refid="dswork.top" /><include refid="columns" /> from USER
+	<include refid="dynamicWhere" />
+	order by CREATETIME desc
+</select>
+
+<select id="queryCount" resultType="int">
+	select count(1) from USER
+	<include refid="dynamicWhere" />
+</select>
+
+</mapper>

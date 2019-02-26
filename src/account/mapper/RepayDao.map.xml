@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+	"-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+	"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="account.dao.RepayDao">
+
+<insert id="insert" parameterType="account.model.Repay">
+	insert into REPAY
+	(ID, NAME, HKJE, MEMO, HKRQ, CREATETIME, USERID)
+	values
+	(#{id}, #{name}, #{hkje}, #{memo}, #{hkrq}, #{createtime}, #{userid})
+</insert>
+
+<delete id="delete">
+	delete from REPAY where ID=#{id}
+</delete>
+
+<update id="update" parameterType="account.model.Repay">
+	update REPAY set
+		NAME=#{name},
+		HKJE=#{hkje},
+		MEMO=#{memo},
+		HKRQ=#{hkrq},
+		CREATETIME=#{createtime},
+		USERID=#{userid}
+	where ID=#{id}
+	<if test="@Ognl@isNotEmpty(lasttime)"> and LASTTIME=#{lasttime} </if>
+</update>
+
+<resultMap id="result" type="account.model.Repay">
+	<id property="id" column="ID" />
+	<result property="name" column="NAME" />
+	<result property="hkje" column="HKJE" />
+	<result property="memo" column="MEMO" />
+	<result property="hkrq" column="HKRQ" />
+	<result property="createtime" column="CREATETIME" />
+	<result property="userid" column="USERID" />
+</resultMap>
+
+<sql id="columns">ID, NAME, HKJE, MEMO, HKRQ, CREATETIME, USERID</sql>
+
+<sql id="dynamicWhere">
+	<where>
+		<if test="@Ognl@isNotEmpty(id)"> and ID=#{id} </if>
+		<if test="@Ognl@isNotEmpty(name)"> and NAME like #{name, typeHandler=LikeTypeHandler} </if>
+		<if test="@Ognl@isNotEmpty(hkje)"> and HKJE=#{hkje} </if>
+		<if test="@Ognl@isNotEmpty(memo)"> and MEMO like #{memo, typeHandler=LikeTypeHandler} </if>
+		<if test="@Ognl@isNotEmpty(hkrq)"> and HKRQ like #{hkrq, typeHandler=LikeTypeHandler} </if>
+		<if test="@Ognl@isNotEmpty(createtime)"> and CREATETIME like #{createtime, typeHandler=LikeTypeHandler} </if>
+		<if test="@Ognl@isNotEmpty(userid)"> and USERID=#{userid} </if>
+	</where>
+</sql>
+
+<select id="select" resultMap="result">
+	select <include refid="columns" /> from REPAY where ID=#{id}
+</select>
+
+<select id="query" resultMap="result">
+	select <include refid="dswork.top" /><include refid="columns" /> from REPAY
+	<include refid="dynamicWhere" />
+	order by CREATETIME desc
+</select>
+
+<select id="queryCount" resultType="int">
+	select count(1) from REPAY
+	<include refid="dynamicWhere" />
+</select>
+<select id="queryHkje" resultMap="result">
+	select sum(HKJE) HKJE from REPAY where  USERID=#{userid}
+</select>
+</mapper>
